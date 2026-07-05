@@ -13,25 +13,6 @@ server_ip="$(curl -fsS https://api.ipify.org || hostname -I | awk '{print $1}')"
 port="$(config_get_port)"
 sni="$(config_get_sni)"
 
-divider() {
-  echo -e "${DIM}────────────────────────────────────────────${RESET}"
-}
-
-kv() {
-  local k="$1"
-  local v="$2"
-  printf " ${BRIGHT_BLUE}%-8s${RESET} : ${BRIGHT_WHITE}%s${RESET}\n" "$k" "$v"
-}
-
-page_title() {
-  local title="$1"
-  clear
-  divider
-  echo -e " ${BOLD}${BRIGHT_WHITE}${title}${RESET}"
-  divider
-  echo
-}
-
 show_user_detail() {
   local username="$1"
   local password remark enabled created_at status_icon status_text link
@@ -52,45 +33,35 @@ show_user_detail() {
   link="hy2://${username}:${password}@${server_ip}:${port}/?sni=${sni}&insecure=1#${username}"
 
   while true; do
-    page_title "用户详情"
+    clear
+    ui_page_title "用户详情"
 
-    echo -e "${BRIGHT_BLUE}👤 用户信息${RESET}"
-    divider
-    kv "用户名" "$username"
-    kv "备注" "${remark:-无}"
-    kv "状态" "$status_icon $status_text"
-    kv "创建时间" "${created_at:-unknown}"
+    ui_section "👤 用户信息" "$BRIGHT_BLUE"
+    ui_field "用户名" "$username"
+    ui_field "备注" "${remark:-无}"
+    ui_field "状态" "$status_icon $status_text"
+    ui_field "创建时间" "${created_at:-unknown}"
 
-    echo
-    echo -e "${BRIGHT_CYAN}🌐 连接信息${RESET}"
-    divider
-    kv "服务器" "$server_ip"
-    kv "端口" "${port}/udp"
-    kv "SNI" "$sni"
-    kv "协议" "Hysteria2"
+    ui_section "🌐 连接信息" "$BRIGHT_CYAN"
+    ui_field "服务器" "$server_ip"
+    ui_field "端口" "${port}/udp"
+    ui_field "SNI" "$sni"
+    ui_field "协议" "Hysteria2"
 
-    echo
-    echo -e "${BRIGHT_YELLOW}🔐 认证信息${RESET}"
-    divider
-    kv "密码" "$password"
+    ui_section "🔐 认证信息" "$BRIGHT_YELLOW"
+    ui_field "密码" "$password"
 
-    echo
-    echo -e "${BRIGHT_GREEN}🔗 HY2 链接${RESET}"
-    divider
-    echo -e "${BRIGHT_WHITE}${link}${RESET}"
+    ui_section "🔗 HY2 链接" "$BRIGHT_GREEN"
+    ui_link "$link"
 
-    echo
-    echo -e "${BRIGHT_MAGENTA}⚙️ 操作${RESET}"
-    divider
-    echo -e " ${BRIGHT_GREEN}1.${RESET} 修改密码"
-    echo -e " ${BRIGHT_GREEN}2.${RESET} 显示二维码"
-    echo -e " ${BRIGHT_GREEN}3.${RESET} 导出配置"
-    echo
-    echo -e " ${BRIGHT_GREEN}0.${RESET} 返回上一层"
-    echo -e " ${DIM}q. 退出 AirCtl${RESET}"
-    echo
+    ui_section "⚙️ 操作" "$BRIGHT_MAGENTA"
+    ui_menu_item "1" "修改密码"
+    ui_menu_item "2" "显示二维码"
+    ui_menu_item "3" "导出配置"
+    ui_nav
 
-    read -rp "AirCtl > " action
+    ui_prompt
+    read -r action
 
     case "$action" in
       1) bash /opt/airctl/scripts/user-passwd.sh "$username"; read -rp "按 Enter 继续..." ;;
@@ -98,18 +69,19 @@ show_user_detail() {
       3) bash /opt/airctl/scripts/user-link.sh "$username"; read -rp "按 Enter 继续..." ;;
       0) return ;;
       q|Q) exit 0 ;;
-      *) echo "无效选择"; read -rp "按 Enter 继续..." ;;
+      *) ui_warning "无效选择"; read -rp "按 Enter 继续..." ;;
     esac
   done
 }
 
 while true; do
-  page_title "用户列表"
+  clear
+  ui_page_title "用户列表"
 
   mapfile -t users < <(user_list_names)
 
   if [ "${#users[@]}" -eq 0 ]; then
-    warning "暂无用户"
+    ui_warning "暂无用户"
     echo
     read -rp "按 Enter 返回..."
     exit 0
@@ -119,20 +91,16 @@ while true; do
   for username in "${users[@]}"; do
     remark="$(user_remark "$username")"
     if [ -n "$remark" ]; then
-      echo -e " ${BRIGHT_GREEN}${index}.${RESET} ${BRIGHT_WHITE}${username}${RESET} ${DIM}(${remark})${RESET}"
+      echo -e " ${BRIGHT_GREEN}${index} :${RESET} ${BRIGHT_WHITE}${username}${RESET} ${DIM}(${remark})${RESET}"
     else
-      echo -e " ${BRIGHT_GREEN}${index}.${RESET} ${BRIGHT_WHITE}${username}${RESET}"
+      echo -e " ${BRIGHT_GREEN}${index} :${RESET} ${BRIGHT_WHITE}${username}${RESET}"
     fi
     index=$((index + 1))
   done
 
-  echo
-  divider
-  echo -e " ${BRIGHT_GREEN}0.${RESET} 返回上一层"
-  echo -e " ${DIM}q. 退出 AirCtl${RESET}"
-  echo
-
-  read -rp "AirCtl > " choice
+  ui_nav
+  ui_prompt
+  read -r choice
 
   case "$choice" in
     0) exit 0 ;;
@@ -140,13 +108,13 @@ while true; do
   esac
 
   if ! [[ "$choice" =~ ^[0-9]+$ ]]; then
-    warning "请输入数字"
+    ui_warning "请输入数字"
     read -rp "按 Enter 继续..."
     continue
   fi
 
   if [ "$choice" -lt 1 ] || [ "$choice" -gt "${#users[@]}" ]; then
-    warning "无效选择"
+    ui_warning "无效选择"
     read -rp "按 Enter 继续..."
     continue
   fi
