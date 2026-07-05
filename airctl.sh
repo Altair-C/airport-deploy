@@ -8,9 +8,13 @@ if [ "$(id -u)" -ne 0 ]; then
   exit 1
 fi
 
-
 source "${BASE_DIR}/lib/ui.sh"
 source "${BASE_DIR}/lib/common.sh"
+
+pause() {
+  echo
+  read -rp "按 Enter 返回菜单..."
+}
 
 show_dashboard() {
   local version
@@ -37,42 +41,50 @@ show_dashboard() {
   printf " ${BRIGHT_BLUE}Core   ${RESET}: ${DIM}%s${RESET}\n" "${hy_version:-unknown}"
 }
 
+menu_item() {
+  local key="$1"
+  local text="$2"
+  echo -e " ${BRIGHT_GREEN}${key} :${RESET} ${BRIGHT_WHITE}${text}${RESET}"
+}
+
 while true; do
   clear
   show_dashboard
 
   section "🟢" "服务管理" "$BRIGHT_GREEN"
-  item 1 "查看服务状态"
-  item 2 "启动服务"
-  item 3 "停止服务"
-  item 4 "重启服务"
-  item 5 "查看实时日志"
+  menu_item 1 "查看服务状态"
+  menu_item 2 "启动服务"
+  menu_item 3 "停止服务"
+  menu_item 4 "重启服务"
+  menu_item 5 "查看实时日志"
 
   section "👤" "用户管理" "$BRIGHT_BLUE"
-  item 10 "新增用户"
-  item 11 "删除用户"
-  item 12 "修改用户密码"
-  item 13 "查看用户"
-  item 14 "导出用户链接"
-  item 15 "显示二维码"
+  menu_item 10 "新增用户"
+  menu_item 11 "删除用户"
+  menu_item 12 "修改用户密码"
+  menu_item 13 "查看用户"
+  menu_item 14 "导出用户链接"
+  menu_item 15 "显示二维码"
 
   section "⚙️" "配置管理" "$BRIGHT_CYAN"
-  item 20 "修改端口"
-  item 21 "修改 SNI"
-  item 22 "查看配置"
-  item 23 "重载配置"
+  menu_item 20 "修改端口"
+  menu_item 21 "修改 SNI"
+  menu_item 22 "查看配置"
+  menu_item 23 "重载配置"
 
   section "🛠" "维护" "$BRIGHT_YELLOW"
-  item 30 "系统检测"
-  item 31 "备份"
-  item 32 "恢复"
-  item 33 "更新 Hysteria2"
+  menu_item 30 "系统检测"
+  menu_item 31 "备份"
+  menu_item 32 "恢复"
+  menu_item 33 "更新 Hysteria2"
 
   echo
   line
-  item 0 "Exit"
+  menu_item 0 "返回 / 退出"
+  echo -e " ${DIM}q : 退出 AirCtl${RESET}"
   echo
-  read -rp "请选择: " choice
+
+  read -rp "AirCtl > " choice
 
   case "$choice" in
     1) bash "${BASE_DIR}/scripts/service-status.sh"; pause ;;
@@ -98,7 +110,7 @@ while true; do
     32) bash "${BASE_DIR}/scripts/restore.sh"; pause ;;
     33) bash "${BASE_DIR}/scripts/update-hysteria.sh"; pause ;;
 
-    0) exit 0 ;;
+    0|q|Q) exit 0 ;;
     *) error "无效选择"; pause ;;
   esac
 done

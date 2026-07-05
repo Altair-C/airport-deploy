@@ -24,23 +24,25 @@ while true; do
   for username in "${users[@]}"; do
     remark="$(user_remark "$username")"
     if [ -n "$remark" ]; then
-      echo -e " ${BRIGHT_GREEN}${index}.${RESET} ${BRIGHT_WHITE}${username}${RESET} ${DIM}(${remark})${RESET}"
+      echo -e " ${BRIGHT_GREEN}${index} :${RESET} ${BRIGHT_WHITE}${username}${RESET} ${DIM}(${remark})${RESET}"
     else
-      echo -e " ${BRIGHT_GREEN}${index}.${RESET} ${BRIGHT_WHITE}${username}${RESET}"
+      echo -e " ${BRIGHT_GREEN}${index} :${RESET} ${BRIGHT_WHITE}${username}${RESET}"
     fi
     index=$((index + 1))
   done
 
   echo
   ui_line
-  echo -e " ${BRIGHT_GREEN}0.${RESET} 返回"
+  echo -e " ${BRIGHT_GREEN}0 :${RESET} 返回上一层"
+  echo -e " ${DIM}q : 退出 AirCtl${RESET}"
   echo
 
-  read -rp "请选择要删除的用户序号: " choice
+  read -rp "AirCtl > " choice
 
-  if [ "$choice" = "0" ]; then
-    exit 0
-  fi
+  case "$choice" in
+    0) exit 0 ;;
+    q|Q) exit 0 ;;
+  esac
 
   if ! [[ "$choice" =~ ^[0-9]+$ ]]; then
     ui_warning "请输入数字"
