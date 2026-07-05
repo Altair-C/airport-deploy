@@ -66,7 +66,8 @@ user_add() {
         "created_at": $now,
         "updated_at": $now,
         "expire_at": null,
-        "traffic_limit": "Unlimited"
+        "traffic_limit": "Unlimited",
+        "subscription_token": ""
       }
     }' "$USERS_DB" > "$tmp"
 
@@ -124,7 +125,8 @@ migrate_users_db() {
           ),
           updated_at: (.value.updated_at // ""),
           expire_at: (.value.expire_at // null),
-          traffic_limit: (.value.traffic_limit // "Unlimited")
+          traffic_limit: (.value.traffic_limit // "Unlimited"),
+          subscription_token: (.value.subscription_token // "")
         }
       else
         {
@@ -143,4 +145,53 @@ migrate_users_db() {
   cat "$tmp" > "$USERS_DB"
   rm -f "$tmp"
   chmod 600 "$USERS_DB"
+}
+
+
+user_token() {
+  local username="$1"
+  jq -r --arg u "$username" '.[$u].subscription_token // empty' "$USERS_DB"
+}
+
+user_set_token() {
+  local username="$1"
+  local token="$2"
+  local tmp
+  tmp="$(mktemp)"
+
+  jq --arg u "$username" --arg t "$token" \
+    '.[$u].subscription_token = $t' \
+    "$USERS_DB" > "$tmp"
+
+  cat "$tmp" > "$USERS_DB"
+  rm -f "$tmp"
+}
+
+ensure_user_tokens() {
+  ensure_users_db
+  migrate_users_db
+
+  local tmp
+  tmp="$(mktemp)"
+
+  jq '
+    with_entries(
+      if (.value.subscription_token == null or .value.subscription_token == "") then
+        .value.subscription_token = ""
+      else
+        .
+      end
+    )
+  ' "$USERS_DB" > "$tmp"
+
+  cat "$tmp" > "$USERS_DB"
+  rm -f "$tmp"
+
+  for username in $(user_list_names); do
+    token="$(user_token "$username")"
+    if [ -z "$token" ]; then
+      token="$(openssl rand -hex 24)"
+      user_set_token "$username" "$token"
+    fi
+  done
 }
