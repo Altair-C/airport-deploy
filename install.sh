@@ -62,7 +62,8 @@ masquerade:
     rewriteHost: true
 EOF_CONFIG
 
-  chmod 600 "${HYSTERIA_CONFIG}"
+  chown root:hysteria "${HYSTERIA_CONFIG}" 2>/dev/null || true
+chmod 640 "${HYSTERIA_CONFIG}"
 }
 
 install_airport_command() {
