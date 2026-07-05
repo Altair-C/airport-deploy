@@ -3,6 +3,12 @@ set -euo pipefail
 
 BASE_DIR="/opt/airctl"
 
+if [ "$(id -u)" -ne 0 ]; then
+  echo "AirCtl 需要 root 权限运行，请使用：sudo airctl"
+  exit 1
+fi
+
+
 source "${BASE_DIR}/lib/ui.sh"
 source "${BASE_DIR}/lib/common.sh"
 
