@@ -19,12 +19,13 @@ kv() {
   printf " ${BRIGHT_BLUE}%-10s${RESET}: ${BRIGHT_WHITE}%s${RESET}\n" "$k" "$v"
 }
 
-box_title() {
+page_title() {
   local title="$1"
 
-  echo -e "${BRIGHT_CYAN}╭────────────────────────────────────────────╮${RESET}"
-  echo -e "${BRIGHT_CYAN}│${RESET} ${BOLD}${BRIGHT_WHITE}${title}${RESET}"
-  echo -e "${BRIGHT_CYAN}╰────────────────────────────────────────────╯${RESET}"
+  echo
+  echo -e "${BRIGHT_CYAN}────────────────────────────────────────────${RESET}"
+  echo -e "${BOLD}${BRIGHT_WHITE} $title${RESET}"
+  echo -e "${BRIGHT_CYAN}────────────────────────────────────────────${RESET}"
 }
 
 show_user_detail() {
@@ -48,8 +49,7 @@ show_user_detail() {
 
   while true; do
     clear
-    box_title "用户详情"
-    echo
+    page_title "👤 用户详情"
 
     section "👤" "用户信息" "$BRIGHT_BLUE"
     kv "用户名" "$username"
@@ -73,10 +73,12 @@ show_user_detail() {
     item 1 "修改密码"
     item 2 "显示二维码"
     item 3 "导出配置"
-    item 4 "返回"
-
+    item 0 "返回上一层"
     echo
-    read -rp "请选择: " action
+    echo -e "${DIM}q. 退出 AirCtl${RESET}"
+    echo
+
+    read -rp "AirCtl > " action
 
     case "$action" in
       1)
@@ -91,8 +93,11 @@ show_user_detail() {
         bash /opt/airctl/scripts/user-link.sh "$username"
         read -rp "按 Enter 继续..."
         ;;
-      4)
+      0)
         return
+        ;;
+      q|Q)
+        exit 0
         ;;
       *)
         echo "无效选择"
@@ -104,8 +109,7 @@ show_user_detail() {
 
 while true; do
   clear
-  box_title "用户列表"
-  echo
+  page_title "👤 用户列表"
 
   mapfile -t users < <(user_list_names)
 
@@ -128,13 +132,21 @@ while true; do
   done
 
   line
-  item 0 "返回"
+  item 0 "返回上一层"
   echo
-  read -rp "请选择: " choice
+  echo -e "${DIM}q. 退出 AirCtl${RESET}"
+  echo
 
-  if [ "$choice" = "0" ]; then
-    exit 0
-  fi
+  read -rp "AirCtl > " choice
+
+  case "$choice" in
+    0)
+      exit 0
+      ;;
+    q|Q)
+      exit 0
+      ;;
+  esac
 
   if ! [[ "$choice" =~ ^[0-9]+$ ]]; then
     warning "请输入数字"
