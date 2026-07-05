@@ -20,8 +20,10 @@ kv() {
 }
 
 box_title() {
+  local title="$1"
+
   echo -e "${BRIGHT_CYAN}╭────────────────────────────────────────────╮${RESET}"
-  echo -e "${BRIGHT_CYAN}│${RESET}                 ${BOLD}${BRIGHT_WHITE}$1${RESET}                 ${BRIGHT_CYAN}│${RESET}"
+  echo -e "${BRIGHT_CYAN}│${RESET} ${BOLD}${BRIGHT_WHITE}${title}${RESET}"
   echo -e "${BRIGHT_CYAN}╰────────────────────────────────────────────╯${RESET}"
 }
 
