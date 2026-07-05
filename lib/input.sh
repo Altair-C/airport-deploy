@@ -13,6 +13,30 @@ ui_read_key() {
   printf "%s" "$key"
 }
 
+ui_read_choice() {
+  local first
+  local rest
+
+  first="$(ui_read_key)"
+
+  case "$first" in
+    q|Q)
+      echo
+      printf "q"
+      return
+      ;;
+    "")
+      echo
+      printf ""
+      return
+      ;;
+  esac
+
+  printf "%s" "$first" > /dev/tty
+  IFS= read -r rest < /dev/tty
+  printf "%s%s" "$first" "$rest"
+}
+
 ui_pause() {
   echo
   echo -ne "${DIM}按任意键继续...${RESET}"

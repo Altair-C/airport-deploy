@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+AIRCTL_EXIT_CODE=88
+
 source /opt/airctl/lib/users.sh
 source /opt/airctl/lib/ui.sh
+source /opt/airctl/lib/input.sh
 
 ensure_users_db
 migrate_users_db
@@ -15,8 +18,7 @@ while true; do
 
   if [ "${#users[@]}" -eq 0 ]; then
     ui_warning "暂无用户"
-    echo
-    read -rp "按 Enter 返回..."
+    ui_pause
     exit 0
   fi
 
@@ -37,22 +39,24 @@ while true; do
   echo -e " ${DIM}q : 退出 AirCtl${RESET}"
   echo
 
-  read -rp "AirCtl > " choice
+  ui_prompt
+  choice="$(ui_read_choice)"
+  echo
 
   case "$choice" in
     0) exit 0 ;;
-    q|Q) exit 0 ;;
+    q|Q) exit "$AIRCTL_EXIT_CODE" ;;
   esac
 
   if ! [[ "$choice" =~ ^[0-9]+$ ]]; then
     ui_warning "请输入数字"
-    read -rp "按 Enter 继续..."
+    ui_pause
     continue
   fi
 
   if [ "$choice" -lt 1 ] || [ "$choice" -gt "${#users[@]}" ]; then
     ui_warning "无效选择"
-    read -rp "按 Enter 继续..."
+    ui_pause
     continue
   fi
 
@@ -64,7 +68,7 @@ while true; do
 
   if [ "$confirm" != "yes" ]; then
     ui_info "已取消"
-    read -rp "按 Enter 继续..."
+    ui_pause
     continue
   fi
 
@@ -74,7 +78,6 @@ while true; do
   systemctl restart hysteria-server
 
   ui_success "用户已删除: $username"
-  echo
-  read -rp "按 Enter 返回..."
+  ui_pause
   exit 0
 done

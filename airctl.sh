@@ -2,6 +2,7 @@
 set -euo pipefail
 
 BASE_DIR="/opt/airctl"
+AIRCTL_EXIT_CODE=88
 
 if [ "$(id -u)" -ne 0 ]; then
   echo "AirCtl 需要 root 权限运行，请使用：sudo airctl"
@@ -9,6 +10,7 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 source "${BASE_DIR}/lib/ui.sh"
+source "${BASE_DIR}/lib/input.sh"
 source "${BASE_DIR}/lib/common.sh"
 
 pause() {
@@ -47,6 +49,30 @@ menu_item() {
   echo -e " ${BRIGHT_GREEN}${key} :${RESET} ${BRIGHT_WHITE}${text}${RESET}"
 }
 
+run_with_pause() {
+  set +e
+  bash "$@"
+  code=$?
+  set -e
+
+  if [ "$code" -eq "$AIRCTL_EXIT_CODE" ]; then
+    exit 0
+  fi
+
+  pause
+}
+
+run_no_pause() {
+  set +e
+  bash "$@"
+  code=$?
+  set -e
+
+  if [ "$code" -eq "$AIRCTL_EXIT_CODE" ]; then
+    exit 0
+  fi
+}
+
 while true; do
   clear
   show_dashboard
@@ -80,35 +106,37 @@ while true; do
 
   echo
   line
-  menu_item 0 "返回 / 退出"
+  menu_item 0 "退出"
   echo -e " ${DIM}q : 退出 AirCtl${RESET}"
   echo
 
-  read -rp "AirCtl > " choice
+  echo -ne "${BRIGHT_CYAN}AirCtl > ${RESET}"
+  choice="$(ui_read_choice)"
+  echo
 
   case "$choice" in
-    1) bash "${BASE_DIR}/scripts/service-status.sh"; pause ;;
-    2) bash "${BASE_DIR}/scripts/service-start.sh"; pause ;;
-    3) bash "${BASE_DIR}/scripts/service-stop.sh"; pause ;;
-    4) bash "${BASE_DIR}/scripts/service-restart.sh"; pause ;;
+    1) run_with_pause "${BASE_DIR}/scripts/service-status.sh" ;;
+    2) run_with_pause "${BASE_DIR}/scripts/service-start.sh" ;;
+    3) run_with_pause "${BASE_DIR}/scripts/service-stop.sh" ;;
+    4) run_with_pause "${BASE_DIR}/scripts/service-restart.sh" ;;
     5) bash "${BASE_DIR}/scripts/service-logs.sh" ;;
 
-    10) bash "${BASE_DIR}/scripts/user-add.sh"; pause ;;
-    11) bash "${BASE_DIR}/scripts/user-del.sh"; pause ;;
-    12) bash "${BASE_DIR}/scripts/user-passwd.sh"; pause ;;
-    13) bash "${BASE_DIR}/scripts/user-show.sh" ;;
-    14) bash "${BASE_DIR}/scripts/user-link.sh"; pause ;;
-    15) bash "${BASE_DIR}/scripts/user-qr.sh"; pause ;;
+    10) run_with_pause "${BASE_DIR}/scripts/user-add.sh" ;;
+    11) run_no_pause "${BASE_DIR}/scripts/user-del.sh" ;;
+    12) run_with_pause "${BASE_DIR}/scripts/user-passwd.sh" ;;
+    13) run_no_pause "${BASE_DIR}/scripts/user-show.sh" ;;
+    14) run_with_pause "${BASE_DIR}/scripts/user-link.sh" ;;
+    15) run_with_pause "${BASE_DIR}/scripts/user-qr.sh" ;;
 
-    20) bash "${BASE_DIR}/scripts/config-port.sh"; pause ;;
-    21) bash "${BASE_DIR}/scripts/config-sni.sh"; pause ;;
-    22) bash "${BASE_DIR}/scripts/config-show.sh"; pause ;;
-    23) bash "${BASE_DIR}/scripts/config-reload.sh"; pause ;;
+    20) run_with_pause "${BASE_DIR}/scripts/config-port.sh" ;;
+    21) run_with_pause "${BASE_DIR}/scripts/config-sni.sh" ;;
+    22) run_with_pause "${BASE_DIR}/scripts/config-show.sh" ;;
+    23) run_with_pause "${BASE_DIR}/scripts/config-reload.sh" ;;
 
-    30) bash "${BASE_DIR}/scripts/diagnose.sh"; pause ;;
-    31) bash "${BASE_DIR}/scripts/backup.sh"; pause ;;
-    32) bash "${BASE_DIR}/scripts/restore.sh"; pause ;;
-    33) bash "${BASE_DIR}/scripts/update-hysteria.sh"; pause ;;
+    30) run_with_pause "${BASE_DIR}/scripts/diagnose.sh" ;;
+    31) run_with_pause "${BASE_DIR}/scripts/backup.sh" ;;
+    32) run_with_pause "${BASE_DIR}/scripts/restore.sh" ;;
+    33) run_with_pause "${BASE_DIR}/scripts/update-hysteria.sh" ;;
 
     0|q|Q) exit 0 ;;
     *) error "无效选择"; pause ;;
