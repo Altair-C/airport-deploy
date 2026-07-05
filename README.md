@@ -1,27 +1,15 @@
 # airport-deploy
 
-Reusable deployment framework for a private multi-user proxy service.
+Reusable deployment framework for a private multi-user proxy service based on Hiddify Manager.
 
 ## Stack
 
 - Ubuntu 24.04
 - Docker
-- Docker Compose
-- Marzban
-- Hysteria2
-- VLESS Reality
+- Hiddify Manager
+- SingBox / Xray
+- Hysteria2 as the primary protocol
 
-## Current Status
+## Goal
 
-- v0.1.0: server bootstrap completed
-- v0.2.0: Marzban panel deployed
-
-## Dashboard Access
-
-Use SSH tunnel:
-
-    ssh -L 8000:127.0.0.1:8000 ubuntu@SERVER_IP
-
-Open:
-
-    http://127.0.0.1:8000/dashboard/
+Use official Hiddify Manager as the panel and build automation around installation, backup, restore, user operations, and Git-based maintenance.

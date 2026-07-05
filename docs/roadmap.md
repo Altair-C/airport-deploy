@@ -1,31 +1,27 @@
-
 # Roadmap
 
 ## v0.1.0
 
-- Project skeleton
-
-- Server bootstrap script
+- Server bootstrap
+- Docker installed
 
 ## v0.2.0
 
-- Docker Compose
-
-- Marzban panel
+- Switch to Hiddify Manager
+- Official installation wrapper
 
 ## v0.3.0
 
-- Hysteria2 inbound
+- Hysteria2 primary protocol verified
 
 ## v0.4.0
 
-- VLESS Reality inbound
+- Backup and restore
 
 ## v0.5.0
 
-- Backup and restore
+- User operation scripts
 
 ## v1.0.0
 
 - Stable reusable deployment
-

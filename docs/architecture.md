@@ -2,34 +2,34 @@
 
 ## Goal
 
-A reusable deployment framework for a private multi-user proxy service.
+Build a reusable deployment framework around Hiddify Manager.
 
 ## Components
 
 - Ubuntu 24.04
 - Docker
-- Docker Compose
-- Marzban
+- Hiddify Manager
+- SingBox
 - Hysteria2
-- VLESS Reality
+
+## Principle
+
+Hiddify Manager handles panel, core, users, subscriptions, and protocol management.
+
+airport-deploy handles:
+
+- server bootstrap
+- repeatable installation
+- firewall preparation
+- backup scripts
+- restore scripts
+- documentation
+- Git-based maintenance
 
 ## Ports
 
-| Port | Protocol | Purpose |
-|------|----------|---------|
-| 22 | TCP | SSH |
-| 8000 | TCP | Marzban Panel |
-| 8443 | UDP | Hysteria2 |
-| 443 | TCP | VLESS Reality |
+Exact ports are finalized by Hiddify Manager during configuration.
 
-## Server Path
+Development access should use the public panel temporarily.
 
-Default server installation path:
-
-    /opt/airport
-
-## Security Rule
-
-Public GitHub repository only stores code and templates.
-
-Secrets, keys, users, databases, and generated runtime configs must never be committed.
+Production management should prefer SSH tunnel where possible.
