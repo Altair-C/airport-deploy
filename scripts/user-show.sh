@@ -13,6 +13,18 @@ server_ip="$(curl -fsS https://api.ipify.org || hostname -I | awk '{print $1}')"
 port="$(config_get_port)"
 sni="$(config_get_sni)"
 
+kv() {
+  local k="$1"
+  local v="$2"
+  printf " ${BRIGHT_BLUE}%-10s${RESET}: ${BRIGHT_WHITE}%s${RESET}\n" "$k" "$v"
+}
+
+box_title() {
+  echo -e "${BRIGHT_CYAN}╭────────────────────────────────────────────╮${RESET}"
+  echo -e "${BRIGHT_CYAN}│${RESET}                 ${BOLD}${BRIGHT_WHITE}$1${RESET}                 ${BRIGHT_CYAN}│${RESET}"
+  echo -e "${BRIGHT_CYAN}╰────────────────────────────────────────────╯${RESET}"
+}
+
 show_user_detail() {
   local username="$1"
   local password remark enabled created_at status_icon status_text link
@@ -34,52 +46,33 @@ show_user_detail() {
 
   while true; do
     clear
-    echo "=========================================================="
-    echo "                      用户详情"
-    echo "=========================================================="
+    box_title "用户详情"
     echo
-    echo "用户名"
-    echo "$username"
-    echo
-    echo "备注"
-    echo "${remark:-无}"
-    echo
-    echo "状态"
-    echo "$status_icon $status_text"
-    echo
-    echo "创建时间"
-    echo "${created_at:-unknown}"
-    echo
-    echo "=========================================================="
-    echo
-    echo "服务器"
-    echo "$server_ip"
-    echo
-    echo "端口"
-    echo "$port"
-    echo
-    echo "SNI"
-    echo "$sni"
-    echo
-    echo "协议"
-    echo "Hysteria2"
-    echo
-    echo "=========================================================="
-    echo
-    echo "密码"
-    echo "$password"
-    echo
-    echo "=========================================================="
-    echo
-    echo "HY2"
-    echo "$link"
-    echo
-    echo "=========================================================="
-    echo
-    echo "1. 修改密码"
-    echo "2. 显示二维码"
-    echo "3. 导出配置"
-    echo "4. 返回"
+
+    section "👤" "用户信息" "$BRIGHT_BLUE"
+    kv "用户名" "$username"
+    kv "备注" "${remark:-无}"
+    kv "状态" "$status_icon $status_text"
+    kv "创建时间" "${created_at:-unknown}"
+
+    section "🌐" "连接信息" "$BRIGHT_CYAN"
+    kv "服务器" "$server_ip"
+    kv "端口" "${port}/udp"
+    kv "SNI" "$sni"
+    kv "协议" "Hysteria2"
+
+    section "🔐" "认证信息" "$BRIGHT_YELLOW"
+    kv "密码" "$password"
+
+    section "🔗" "HY2 链接" "$BRIGHT_GREEN"
+    echo -e "${BRIGHT_WHITE}${link}${RESET}"
+
+    section "⚙️" "操作" "$BRIGHT_MAGENTA"
+    item 1 "修改密码"
+    item 2 "显示二维码"
+    item 3 "导出配置"
+    item 4 "返回"
+
     echo
     read -rp "请选择: " action
 
@@ -109,15 +102,13 @@ show_user_detail() {
 
 while true; do
   clear
-  echo "========================================="
-  echo " 用户列表"
-  echo "========================================="
+  box_title "用户列表"
   echo
 
   mapfile -t users < <(user_list_names)
 
   if [ "${#users[@]}" -eq 0 ]; then
-    echo "暂无用户"
+    warning "暂无用户"
     echo
     read -rp "按 Enter 返回..."
     exit 0
@@ -127,15 +118,15 @@ while true; do
   for username in "${users[@]}"; do
     remark="$(user_remark "$username")"
     if [ -n "$remark" ]; then
-      echo "$index. $username ($remark)"
+      printf " ${BRIGHT_GREEN}%3s${RESET}. ${BRIGHT_WHITE}%s${RESET} ${DIM}(%s)${RESET}\n\n" "$index" "$username" "$remark"
     else
-      echo "$index. $username"
+      printf " ${BRIGHT_GREEN}%3s${RESET}. ${BRIGHT_WHITE}%s${RESET}\n\n" "$index" "$username"
     fi
-    echo
     index=$((index + 1))
   done
 
-  echo "0. 返回"
+  line
+  item 0 "返回"
   echo
   read -rp "请选择: " choice
 
@@ -144,13 +135,13 @@ while true; do
   fi
 
   if ! [[ "$choice" =~ ^[0-9]+$ ]]; then
-    echo "请输入数字"
+    warning "请输入数字"
     read -rp "按 Enter 继续..."
     continue
   fi
 
   if [ "$choice" -lt 1 ] || [ "$choice" -gt "${#users[@]}" ]; then
-    echo "无效选择"
+    warning "无效选择"
     read -rp "按 Enter 继续..."
     continue
   fi
