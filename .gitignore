@@ -1,0 +1,21 @@
+# secrets
+env/.env
+*.env
+*.key
+*.pem
+*.crt
+*.db
+*.sqlite
+*.sqlite3
+
+# runtime data
+data/
+backup/*.tar.gz
+backup/*.zip
+
+# macOS
+.DS_Store
+
+# logs
+*.log
+logs/
