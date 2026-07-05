@@ -52,7 +52,7 @@ show_user_detail() {
   link="hy2://${username}:${password}@${server_ip}:${port}/?sni=${sni}&insecure=1#${username}"
 
   while true; do
-    page_title "👤 用户详情"
+    page_title "用户详情"
 
     echo -e "${BRIGHT_BLUE}👤 用户信息${RESET}"
     divider
@@ -104,7 +104,7 @@ show_user_detail() {
 }
 
 while true; do
-  page_title "👤 用户列表"
+  page_title "用户列表"
 
   mapfile -t users < <(user_list_names)
 
