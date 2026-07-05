@@ -2,7 +2,14 @@
 
 ui_read_key() {
   local key
-  IFS= read -rsn1 key < /dev/tty
+  local old_tty
+
+  old_tty="$(stty -g < /dev/tty)"
+
+  stty raw -echo < /dev/tty
+  key="$(dd bs=1 count=1 2>/dev/null < /dev/tty || true)"
+  stty "$old_tty" < /dev/tty
+
   printf "%s" "$key"
 }
 
