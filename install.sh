@@ -15,17 +15,33 @@ require_root() {
   fi
 }
 
+copy_if_exists() {
+  local src="$1"
+  local dst="$2"
+
+  if [ -e "$src" ]; then
+    cp -r "$src" "$dst"
+  else
+    log "Skip missing path: $src"
+  fi
+}
+
 prepare_files() {
   log "Preparing install directory..."
 
   mkdir -p "${INSTALL_DIR}"
+  mkdir -p "${INSTALL_DIR}/compose"
+  mkdir -p "${INSTALL_DIR}/env"
+  mkdir -p "${INSTALL_DIR}/config"
+  mkdir -p "${INSTALL_DIR}/scripts"
   mkdir -p /var/lib/marzban
 
-  cp -r compose "${INSTALL_DIR}/"
-  cp -r env "${INSTALL_DIR}/"
-  cp -r config "${INSTALL_DIR}/"
-  cp -r scripts "${INSTALL_DIR}/"
-  cp README.md LICENSE "${INSTALL_DIR}/" 2>/dev/null || true
+  copy_if_exists compose/* "${INSTALL_DIR}/compose/"
+  copy_if_exists env/* "${INSTALL_DIR}/env/"
+  copy_if_exists config/* "${INSTALL_DIR}/config/"
+  copy_if_exists scripts/* "${INSTALL_DIR}/scripts/"
+  copy_if_exists README.md "${INSTALL_DIR}/"
+  copy_if_exists LICENSE "${INSTALL_DIR}/"
 
   if [ ! -f "${INSTALL_DIR}/env/.env" ]; then
     cp "${INSTALL_DIR}/env/.env.example" "${INSTALL_DIR}/env/.env"
