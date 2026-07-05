@@ -2,7 +2,7 @@
 
 ui_read_key() {
   local key
-  IFS= read -rsn1 key
+  IFS= read -rsn1 key < /dev/tty
   printf "%s" "$key"
 }
 
