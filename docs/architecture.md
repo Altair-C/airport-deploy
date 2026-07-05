@@ -1,35 +1,29 @@
-# Architecture
+# AirCtl Architecture
 
-## Goal
-
-Build a reusable deployment framework around Hiddify Manager.
+AirCtl is a no-panel Hysteria2 management toolkit.
 
 ## Components
 
-- Ubuntu 24.04
-- Docker
-- Hiddify Manager
-- SingBox
+- Ubuntu
 - Hysteria2
+- systemd
+- UFW
+- AirCtl CLI
+
+## Runtime Paths
+
+- `/opt/airctl` - AirCtl program files
+- `/etc/airctl` - AirCtl configuration and user database
+- `/etc/hysteria/config.yaml` - generated Hysteria2 server config
+- `/etc/hysteria/certs` - TLS certificate files
 
 ## Principle
 
-Hiddify Manager handles panel, core, users, subscriptions, and protocol management.
+AirCtl is the single source of truth for configuration and user management.
 
-airctl handles:
+Do not manually edit:
 
-- server bootstrap
-- repeatable installation
-- firewall preparation
-- backup scripts
-- restore scripts
-- documentation
-- Git-based maintenance
+- `/etc/hysteria/config.yaml`
+- `/etc/airctl/users.json`
 
-## Ports
-
-Exact ports are finalized by Hiddify Manager during configuration.
-
-Development access should use the public panel temporarily.
-
-Production management should prefer SSH tunnel where possible.
+Use `sudo airctl` instead.

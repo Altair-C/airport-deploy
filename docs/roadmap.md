@@ -1,27 +1,24 @@
-# Roadmap
-
-## v0.1.0
-
-- Server bootstrap
-- Docker installed
-
-## v0.2.0
-
-- Switch to Hiddify Manager
-- Official installation wrapper
+# AirCtl Roadmap
 
 ## v0.3.0
 
-- Hysteria2 primary protocol verified
+- Rename project to AirCtl
+- Hysteria2 verified
+- CLI menu available
 
 ## v0.4.0
 
-- Backup and restore
+- Config JSON as single source of truth
+- User database structure upgrade
+- User detail view improvement
 
 ## v0.5.0
 
-- User operation scripts
+- System health check
+- Backup and restore
+- Installer v2
 
 ## v1.0.0
 
-- Stable reusable deployment
+- Stable one-command deployment
+- Full CLI management
